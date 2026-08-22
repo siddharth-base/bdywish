@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Happy Birthday 🎀</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Quicksand:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink-bg:#241226;
+    --pink-card:#3a1f42;
+    --pink-mid:#4d2857;
+    --pink-deep:#c45b78;
+    --plum:#4d2857;
+    --red-bow:#e8b75f;
+    --blue-baby:#c9a6d9;
+    --gold:#e8b75f;
+    --gold-soft:#f2cf8f;
+    --text-plum:#fff6ec;
+    --text-soft:#f3e6d3;
+    --white:#fff6ec;
+    --shadow: 0 12px 30px rgba(0,0,0,.35);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; height:100%;
+    font-family:'Quicksand',sans-serif;
+    color:var(--text-plum);
+    background:var(--pink-bg);
+    overflow:hidden;
+  }
+  .stage{
+    position:relative;
+    width:100%;
+    height:100vh;
+    height:100dvh;
+    max-width:520px;
+    margin:0 auto;
+    background:
+      radial-gradient(circle at 15% 15%, rgba(232,183,95,.14), transparent 35%),
+      radial-gradient(circle at 85% 80%, rgba(201,166,217,.12), transparent 35%),
+      linear-gradient(160deg,#241226 0%,#4d2857 60%,#3a1f42 100%);
+    overflow:hidden;
+    box-shadow: 0 0 60px rgba(232,76,107,0.15);
+  }
+
+  /* ---- Ribbon progress signature ---- */
+  .ribbon-wrap{
+    position:absolute; top:14px; left:50%; transform:translateX(-50%);
+    width:90%; z-index:50; display:flex; align-items:center; gap:8px;
+    pointer-events:none;
+  }
+  .ribbon-track{
+    flex:1; height:10px; border-radius:10px; background:rgba(255,255,255,0.6);
+    overflow:hidden; position:relative; border:2px solid var(--white);
+  }
+  .ribbon-fill{
+    height:100%; width:0%; border-radius:10px;
+    background:linear-gradient(90deg,var(--pink-deep),var(--red-bow));
+    transition:width .7s cubic-bezier(.65,0,.35,1);
+  }
+  .ribbon-bow{ font-size:20px; transition:transform .5s; filter:drop-shadow(0 2px 3px rgba(0,0,0,.15)); }
+  .music-toggle{
+    display:none; position:fixed; right:16px; bottom:16px; z-index:60; width:44px; height:44px;
+    border:2px solid var(--white); border-radius:50%; background:var(--red-bow); color:var(--white);
+    box-shadow:var(--shadow); cursor:pointer; font-size:20px;
+  }
+  .music-toggle.visible{ display:block; }
+
+  /* ---- Screens ---- */
+  .screen{
+    position:absolute; inset:0;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:70px 28px 40px;
+    text-align:center;
+    opacity:0; visibility:hidden;
+    transform:translateY(18px) scale(.98);
+    transition:opacity .55s ease, transform .55s cubic-bezier(.2,.8,.2,1), visibility .55s;
+  }
+  .screen.active{ opacity:1; visibility:visible; transform:translateY(0) scale(1); z-index:5;}
+  #introTransition{ background:#000; }
+
+  .eyebrow{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:12.5px;
+    letter-spacing:2.5px; text-transform:uppercase; color:var(--red-bow);
+    margin-bottom:10px; display:flex; align-items:center; gap:8px;
+  }
+  .eyebrow::before, .eyebrow::after{ content:''; width:16px; height:1.5px; background:var(--pink-deep);}
+
+  h1{
+    font-family:'Baloo 2',sans-serif; font-weight:800;
+    font-size:clamp(28px,7vw,40px); margin:0 0 10px; color:var(--red-bow);
+    line-height:1.15;
+  }
+  p.sub{
+    font-size:16px; color:var(--text-soft); max-width:340px; margin:0 auto 26px; line-height:1.5;
+  }
+
+  .btn{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:17px;
+    border:none; border-radius:999px; padding:15px 34px; cursor:pointer;
+    background:linear-gradient(135deg,var(--pink-deep),var(--red-bow));
+    color:#fff; box-shadow:var(--shadow);
+    transition:transform .15s ease, box-shadow .15s ease;
+    letter-spacing:.3px;
+  }
+  .btn:active{ transform:scale(.95); }
+  .btn.ghost{
+    background:#fff; color:var(--red-bow); border:2px solid var(--pink-mid); box-shadow:none;
+  }
+  .btn-row{ display:flex; gap:14px; justify-content:center; flex-wrap:wrap; }
+
+  /* dots */
+  .dots{ display:flex; gap:6px; margin:18px 0 4px; }
+  .dots span{ width:6px; height:6px; border-radius:50%; background:var(--pink-mid);}
+  .dots span:nth-child(2){background:var(--gold);}
+  .dots span:nth-child(3){width:20px; border-radius:6px; background:var(--red-bow);}
+
+  /* ---------- Screen 1: intro ---------- */
+  .date-badge{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    width:64px; height:64px; border-radius:50%; margin-bottom:14px;
+    background:linear-gradient(135deg,var(--pink-deep),var(--red-bow));
+    box-shadow:var(--shadow); border:3px solid #fff;
+    animation:badgePop .5s cubic-bezier(.34,1.56,.64,1);
+  }
+  .date-badge-day{ font-family:'Baloo 2',sans-serif; font-weight:800; font-size:22px; color:#fff; line-height:1;}
+  .date-badge-month{ font-family:'Baloo 2',sans-serif; font-weight:700; font-size:8.5px; letter-spacing:1.5px; color:#FFE1EC; margin-top:1px;}
+  @keyframes badgePop{ 0%{transform:scale(0) rotate(-20deg);} 100%{transform:scale(1) rotate(0);} }
+
+  .mascot{
+    font-size:74px; margin-bottom:6px;
+    animation:bounce 1.6s ease-in-out infinite;
+  }
+  @keyframes bounce{ 0%,100%{transform:translateY(0) rotate(-4deg);} 50%{transform:translateY(-16px) rotate(4deg);} }
+
+  .candle-stage{ width:min(320px,90vw); margin:18px auto 12px; }
+  .cake-emoji{ font-size:86px; display:block; margin-bottom:8px; }
+  .candle-row{ display:flex; justify-content:center; gap:12px; }
+  .candle-flame{
+    border:0; background:transparent; color:var(--gold); font-size:30px; padding:4px;
+    cursor:pointer; transition:transform .2s, opacity .3s;
+  }
+  .candle-flame:active{ transform:scale(.85); }
+  .candle-flame.out{ opacity:.2; transform:translateY(8px) scale(.7); }
+  .candle-instruction{ font-family:'Caveat',cursive; color:var(--text-soft); font-size:21px; }
+
+  /* ---------- Screen 2: loading ---------- */
+  .loadbar-track{
+    width:220px; height:10px; border-radius:8px; background:var(--pink-card);
+    overflow:hidden; margin:22px 0 8px; border:2px solid var(--white);
+  }
+  .loadbar-fill{ height:100%; width:0%; background:linear-gradient(90deg,var(--gold),var(--red-bow)); border-radius:8px; }
+  .loadtext{ font-size:13px; color:var(--text-soft); letter-spacing:.5px;}
+
+  /* ---------- Screen 3: dark room ---------- */
+  .screen.dark{ background:radial-gradient(circle at 50% 30%, #4a3a63 0%, #241a35 70%); transition:background 1s ease;}
+  .screen.dark.lit{ background:linear-gradient(160deg,#241226 0%,#4d2857 60%,#3a1f42 100%); }
+  .cloud{ font-size:52px; opacity:.85; margin-bottom:6px;}
+  .screen.dark h1, .screen.dark p.sub{ color:#EAD9FF; }
+  .screen.dark.lit h1{ color:var(--red-bow); }
+  .screen.dark.lit p.sub{ color:var(--text-soft); }
+  .screen.dark .eyebrow{ color:#C9AFFF; }
+  .screen.dark .eyebrow::before, .screen.dark .eyebrow::after{ background:#8A6FBF; }
+  .screen.dark.lit .eyebrow{ color:var(--red-bow); }
+  .screen.dark.lit .eyebrow::before, .screen.dark.lit .eyebrow::after{ background:var(--pink-deep); }
+
+  /* fairy lights */
+  .lights{
+    position:absolute; top:0; left:0; width:100%; height:60px; z-index:6;
+    display:flex; justify-content:space-around; align-items:flex-start; padding-top:6px;
+    opacity:0; transition:opacity .6s ease;
+  }
+  .lights.on{ opacity:1; }
+  .bulb{
+    width:12px; height:16px; border-radius:50% 50% 45% 45%; margin-top:14px;
+    animation:twinkle 1.4s ease-in-out infinite;
+    box-shadow:0 0 10px 2px currentColor;
+  }
+  .bulb:nth-child(1){color:#FF8FAB; background:#FF8FAB; animation-delay:.1s;}
+  .bulb:nth-child(2){color:#FFD874; background:#FFD874; animation-delay:.3s;}
+  .bulb:nth-child(3){color:#CDEBFF; background:#CDEBFF; animation-delay:.5s;}
+  .bulb:nth-child(4){color:#C9AFFF; background:#C9AFFF; animation-delay:.7s;}
+  .bulb:nth-child(5){color:#FF8FAB; background:#FF8FAB; animation-delay:.2s;}
+  .bulb:nth-child(6){color:#FFD874; background:#FFD874; animation-delay:.6s;}
+  .bulb:nth-child(7){color:#CDEBFF; background:#CDEBFF; animation-delay:.4s;}
+  @keyframes twinkle{ 0%,100%{opacity:.4; transform:scale(.85);} 50%{opacity:1; transform:scale(1.1);} }
+
+  /* ---------- Screen 4: balloon ---------- */
+  .balloon-wrap{ position:relative; height:150px; display:flex; align-items:center; justify-content:center; margin-bottom:8px;}
+  .balloon{
+    font-size:100px; cursor:pointer; user-select:none; -webkit-user-select:none;
+    animation:float 3s ease-in-out infinite;
+    transition:transform .15s;
+    filter:drop-shadow(0 10px 12px rgba(232,76,107,.25));
+  }
+  .balloon:active{ transform:scale(1.15); }
+  @keyframes float{ 0%,100%{transform:translateY(0) rotate(-2deg);} 50%{transform:translateY(-14px) rotate(2deg);} }
+  .balloon.popped{ animation:none; transform:scale(0); opacity:0; transition:transform .25s, opacity .25s; }
+
+  /* ---------- Screen 5: cake ---------- */
+  .cake-box{ width:260px; margin:6px auto 10px; }
+  .cake-emoji{ font-size:100px; display:block; margin:0 auto 4px; filter:drop-shadow(0 10px 14px rgba(232,76,107,.25)); }
+  .knife-track{
+    position:relative; width:240px; height:46px; margin:14px auto 6px;
+    background:var(--pink-card); border-radius:30px; border:2px solid #fff;
+  }
+  .knife-fill{ position:absolute; left:0; top:0; height:100%; width:0%; background:var(--pink-mid); border-radius:30px 0 0 30px; }
+  .knife-handle{
+    position:absolute; top:50%; left:0; transform:translate(0,-50%);
+    width:42px; height:42px; border-radius:50%; background:linear-gradient(135deg,var(--pink-deep),var(--red-bow));
+    display:flex; align-items:center; justify-content:center; font-size:20px; cursor:grab;
+    box-shadow:0 6px 14px rgba(232,76,107,.35);
+    touch-action:none;
+  }
+  .knife-handle:active{ cursor:grabbing; }
+  .track-label{ font-size:12px; color:var(--text-soft); margin-top:6px; letter-spacing:.5px;}
+
+  /* wish / confetti */
+  .wish-icon{ font-size:64px; margin-bottom:6px; animation:pulse 1.8s ease-in-out infinite;}
+  @keyframes pulse{ 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+  .confetti-piece{
+    position:absolute; top:-10%; font-size:20px; z-index:3; pointer-events:none;
+    animation:fall linear forwards;
+  }
+  @keyframes fall{ to{ transform:translateY(115vh) rotate(360deg); opacity:.2; } }
+
+  /* ---------- Screen 6: scratch cards ---------- */
+  .cards-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:6px 0 18px; width:100%; max-width:390px;
+  }
+  .scratch-card{
+    position:relative; aspect-ratio:9/16; border-radius:18px; overflow:hidden;
+    background:transparent; box-shadow:0 8px 18px rgba(232,76,107,.15); cursor:pointer;
+    perspective:1000px;
+  }
+  #s6{ justify-content:flex-start; overflow-y:auto; padding-top:70px; padding-bottom:40px; }
+  .scratch-card-inner{
+    position:relative; width:100%; height:100%; transition:transform .6s ease;
+    transform-style:preserve-3d;
+  }
+  .scratch-card.flipped .scratch-card-inner{ transform:rotateY(180deg); }
+  .scratch-front,.scratch-reveal{
+    position:absolute; inset:0; backface-visibility:hidden; border-radius:18px;
+  }
+  .scratch-front{
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:10px; background:linear-gradient(135deg,var(--pink-mid),var(--pink-deep));
+    border:2px solid var(--white); color:var(--white);
+  }
+  .scratch-front .front-icon{ font-size:42px; margin-bottom:12px; }
+  .scratch-front .front-label{ font-family:'Baloo 2',sans-serif; font-size:16px; font-weight:700; }
+  .scratch-reveal{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    padding:10px; background:linear-gradient(160deg,rgba(77,40,87,.96),rgba(36,18,38,.98)); text-align:center;
+    transform:rotateY(180deg); border:2px solid var(--white);
+  }
+  .scratch-reveal .reveal-image{
+    width:100%; height:62%; object-fit:cover; object-position:center; border-radius:12px; margin-bottom:8px;
+    border:3px solid #fff; box-shadow:0 4px 8px rgba(0,0,0,.08);
+  }
+  .scratch-reveal p{ font-size:12px; line-height:1.35; color:var(--text-plum); font-weight:600; margin:0;}
+  .counter{ font-size:13px; color:var(--text-soft); margin-top:2px; }
+
+  /* ---------- Screen 7: letter ---------- */
+  .letter{
+    background:rgba(36,18,38,.94); border-radius:16px; padding:28px 24px; width:100%; max-width:360px;
+    box-shadow:0 14px 30px rgba(0,0,0,.35); position:relative; text-align:left;
+    border:1px solid rgba(242,207,143,.35);
+    max-height:56vh; overflow-y:auto;
+  }
+  .letter::before{
+    content:'🎀'; position:absolute; top:-16px; left:50%; transform:translateX(-50%); font-size:28px;
+  }
+  .letter p{ font-family:'Caveat',cursive; font-size:22px; line-height:1.5; color:var(--text-plum); margin:0 0 10px;}
+  .letter .sign{ font-family:'Caveat',cursive; font-size:26px; color:var(--red-bow); text-align:right; margin-top:14px;}
+
+  .finale{ position:relative; }
+  .finale .heading{ margin-bottom:14px; }
+
+  .special-day{
+    font-family:'Baloo 2',sans-serif; font-weight:700; font-size:12.5px; letter-spacing:.5px;
+    color:var(--red-bow); margin-top:18px; background:var(--pink-card);
+    display:inline-block; padding:8px 18px; border-radius:999px; border:1.5px solid #fff;
+  }
+  .footer-hint{ font-size:11px; color:var(--text-soft); opacity:.7; margin-top:14px; }
+
+  /* ---------- Screen 8: birthday calendar ---------- */
+  .calendar-wrap{ width:100%; max-width:340px; }
+  .calendar{
+    background:rgba(36,18,38,.94); border-radius:18px; padding:20px 18px 22px;
+    box-shadow:var(--shadow); border:2px solid var(--gold);
+  }
+  .calendar-month{ font-family:'Baloo 2',sans-serif; font-size:22px; color:var(--red-bow); margin-bottom:14px; }
+  .calendar-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:5px; text-align:center; }
+  .calendar-grid .weekday{ font-size:10px; font-weight:700; color:var(--text-soft); margin-bottom:4px; }
+  .calendar-grid .day{
+    aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+    border-radius:50%; font-size:12px; font-weight:600; color:var(--text-plum);
+  }
+  .calendar-grid .day.empty{ visibility:hidden; }
+  .calendar-grid .day.birthday{
+    background:linear-gradient(135deg,var(--gold),var(--pink-deep)); color:var(--text-plum);
+    box-shadow:0 0 0 3px rgba(255,143,171,.25); animation:calendarPulse 2.4s ease-in-out infinite;
+  }
+  @keyframes calendarPulse{
+    0%,100%{ box-shadow:0 0 0 3px rgba(255,143,171,.25); }
+    50%{ box-shadow:0 0 0 7px rgba(255,143,171,.1); }
+  }
+  .calendar-note{ font-family:'Caveat',cursive; font-size:22px; color:var(--red-bow); margin-top:18px; }
+
+  /* ---------- Screen 8: final closing with photo bg ---------- */
+  #s9{ padding:0; }
+  .finale-bg{
+    position:absolute; inset:0; z-index:0;
+    /* Swap this background-image URL for your own photo whenever you like */
+    background-image:url('pose.jpg');
+    background-size:cover; background-position:center;
+    background-color:var(--pink-deep); /* fallback tint while no photo is set */
+    background-blend-mode:normal;
+  }
+  .finale-overlay{
+    position:absolute; inset:0; z-index:1;
+    background:linear-gradient(180deg, rgba(91,44,63,.15) 0%, rgba(91,44,63,.55) 100%);
+  }
+  .finale-content{
+    position:relative; z-index:2; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; height:100%; padding:0 30px; text-align:center;
+  }
+  .finale-heart{ font-size:44px; margin-bottom:14px; animation:pulse 1.8s ease-in-out infinite; }
+  .finale-text{
+    font-family:'Caveat',cursive; font-weight:700; font-size:clamp(36px,10vw,56px);
+    color:#fff; line-height:1.25; text-shadow:0 4px 18px rgba(0,0,0,.35); margin:0;
+  }
+</style>
+</head>
+<body>
+
+<audio id="backgroundMusic" loop preload="metadata">
+  <source src="love-hindi.mp3" type="audio/mpeg">
+</audio>
+<button class="music-toggle" id="musicToggle" type="button" aria-label="Play music">♫</button>
+
+<div class="stage" id="stage">
+
+  <div class="ribbon-wrap">
+    <div class="ribbon-track"><div class="ribbon-fill" id="ribbonFill"></div></div>
+    <div class="ribbon-bow" id="ribbonBow">🎀</div>
+  </div>
+
+   <!-- Music screen -->
+  <section class="screen active" id="musicScreen">
+    <div class="eyebrow">Wear Headphones </div>
+    <div class="wish-icon">💞</div>
+    <h1>For You</h1>
+    <p class="sub">Press the button, then let the birthday surprise begin.</p>
+    <button class="btn" onclick="startExperience()">▶ CLick For Dhun</button>
+  </section>
+
+  <!-- Brief transition after music starts -->
+  <section class="screen" id="introTransition" aria-label="Loading birthday intro"></section>
+
+  <!-- Screen 1: Intro -->
+  <section class="screen" id="s1">
+    <div class="eyebrow">Happy Birthday · Saloni</div>
+    <div class="date-badge">
+      <span class="date-badge-day">24</span>
+      <span class="date-badge-month">AUGUST</span>
+    </div>
+    <div class="mascot">🐱</div>
+    <h1>Happyyy birthdayyy Saloniii!<br>I made this for youuu</h1>
+    <h2>!READY!</h2>
+    <p class="sub">My bestesttt Friend</p>
+    <div class="btn-row">
+      <button class="btn" onclick="goTo('s2', 15)">Yes</button>
+      <button class="btn ghost" onclick="playfulNo(this)">No</button>
+    </div>
+    <div class="dots"><span></span><span></span><span></span></div>
+  </section>
+
+ 
+
+  <!-- Screen 2: Loading -->
+  <section class="screen" id="s2">
+    <div class="eyebrow">Happy Birthday Sonu · Next</div>
+    <h1>Come on!<br>Have a look at it</h1>
+    <p class="sub">Setting everything up...</p>
+    <div class="loadbar-track"><div class="loadbar-fill" id="loadFill"></div></div>
+    <div class="loadtext" id="loadText">loading your surprise...</div>
+  </section>
+
+  <!-- Screen 3: Dark room -->
+  <section class="screen dark" id="s3">
+    <div class="lights" id="lights">
+      <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+      <div class="bulb"></div><div class="bulb"></div><div class="bulb"></div><div class="bulb"></div>
+    </div>
+    <div class="eyebrow">✦✦✦</div>
+    <div class="cloud">☁️</div>
+    <h1>The room is dark.</h1>
+    <button class="btn" id="lightsBtn" onclick="turnOnLights()">Turn on the lights ✨</button>
+  </section>
+
+  <!-- Screen 4: Happy birthday + balloon -->
+  <section class="screen" id="s4">
+    <div class="eyebrow">Celebration Mode</div>
+    <h1>Happy Birthday Sonu!</h1>
+    <p class="sub">A tiny celebration page made with lots of love.</p>
+    <div class="balloon-wrap">
+      <div class="balloon" id="balloon" onclick="popBalloon()">🎈</div>
+    </div>
+    <button class="btn" id="balloonBtn">Pop the balloon</button>
+  </section>
+
+  <!-- Screen 5a: Cake cut -->
+  <section class="screen" id="s5">
+    <div class="eyebrow">Make A Wish</div>
+    <h1>Blow out the candles<br>and make a wish</h1>
+    <div class="candle-stage">
+      <span class="cake-emoji">🎂</span>
+      <div class="candle-row" id="candleRow">
+        <button class="candle-flame" type="button" aria-label="Blow out candle">🔥</button>
+        <button class="candle-flame" type="button" aria-label="Blow out candle">🔥</button>
+        <button class="candle-flame" type="button" aria-label="Blow out candle">🔥</button>
+        <button class="candle-flame" type="button" aria-label="Blow out candle">🔥</button>
+        <button class="candle-flame" type="button" aria-label="Blow out candle">🔥</button>
+      </div>
+    </div>
+    <div class="candle-instruction" id="candleInstruction">Tap each flame to blow it out 🕯️</div>
+  </section>
+
+  <!-- Screen 5b: Make a wish -->
+  <section class="screen" id="s5b">
+    <div class="eyebrow">Make A Wish</div>
+    <div class="wish-icon">🌟</div>
+    <h1>Cake Cut!</h1>
+    <p class="sub">Close your eyes and make a wish before you take the first bite.</p>
+    <button class="btn" onclick="goTo('s6', 70)">I made a wish 💫</button>
+  </section>
+
+  <!-- Screen 6: scratch cards -->
+  <section class="screen" id="s6">
+    <div class="eyebrow">Reveal Your Birthday Wishes</div>
+    <h1>Every wish holds<br>a little surprise</h1>
+    <div class="cards-grid" id="cardsGrid"></div>
+    <div class="counter" id="cardCounter">0 / 6 revealed</div>
+    <button class="btn" id="revealBtn" style="margin-top:14px; display:none;" onclick="goTo('s7', 100)">Open final message 💌</button>
+  </section>
+
+  <!-- Screen 7: letter -->
+  <section class="screen finale" id="s7">
+    <div class="heading">
+      <div class="eyebrow">One Last Thing</div>
+      <h1>Dear Birthday Girl,</h1>
+    </div>
+    <div class="letter">
+      
+      <p> Tu mazya sathi Letter lihala hotas ekda. Aaj mazya kadun tuzya sathi ek Letter</p>
+     <p> Happy birthday to someone who makes the world feel a little brighter, and full of little moments worth remembering.</p>
+      <p>May this new year bring you closer to your dreams, more confidence in your decisions, and more unexpected moments of joy.</p>
+      <p>So today, I just want you to feel exactly how loved you are. Not just today — always.</p>
+      <p> Ha Special month aahe tuza. Khup sara tu achieve kar life madhe, and I always be proud for you.
+        Je tu Pappa la gift ghetlas tenchya bdy la, I feel so proud for that❤️🫂. Life madhe tu asach grow kar, I'm always there for you.
+      </p>
+      <p> Tuzya sobat jo time spend kela, je moments create kele te kayam mazya lakshat rahnar aahet. Jasa ki toh apla first movie, mahite movie faltu hota , pn te first feeling ani moments je apn create kele hote aple te tar visaru ny shakat.
+        Ani Mini-Seashore la gelo hoto bike shiknya sathi. Te aple funny moments, ----First hug Ganapati madhe 😁.</p>
+        <p> Te sagla mi miss karto .</p>
+        <p>Pnnn</p>
+      <p>Adhii sarkha aplyala madhe tasa bond nahi rahila, ani he notice houn yeta,</p>
+        <p> and I do know the reason behind that.. je pn apan 3 years enjoy kelay ek-mekan sobat,kiva feel kela.</p>
+          <p> Te shayadach tu kiva mi feel kela asta dusrya kona sathi.</p>
+        Aplya madhe ata paryant je hota te bhavtek attraction hota, je kahi vela sathi hota ani te aata slowly fade hotay.
+        I think je apan khup bhandan karycho, tya nanter bolo ny ek-mekan sobat techyane apan ajun lamb hot gelo. 
+        <p>Ani aata shayadch tula kadhi feel hot asel ki, </p>
+          <p>Apn bolat ny aahot adhi sarkhe .Khup sare days kiva half months nighun jatat ani apn bolat ny.</p>
+            <p> Reason, te gaps je apan ragat kiva ego madhe ghetla bhandan kelyavr. Conversation is a key ani tech kami rahila aplya madhe.</p> 
+              <p>Regret hota kadhi-kadhi, convo kela asta tar brr zala asta. </p>
+        <p>Ani aata I know khup new people bhetnar,jenchya sobat apn jasta time spend karnr. </p>
+          <p>ani te ajun aplya madhe distance annar. Pn mi thodi tari koshish karnr ki apla distance jasta kami nko hou mhanun ani thodi tu pn kar hava asel tar 🙄. </p>
+      </p>
+      <p>Te calls mi miss karto aple, / 3-3 hours pn boloy apn, ajun khup ky ahe kiti sangat basu😌 tula tar time ny . 
+        Asun pn kadat ny😏.
+        Thike samju shakto . Ek time nanter "bor" tar honarch ekashi bolun.
+        <p> Pn Mi tuzyashi kadhich bor ny honar 🫂 jhevha pn tula bolu vatel call karat ja mi nehmi tuza call receive karel. <p>
+         </p>
+         <p> Ani yaar jara Msg cha reply lavkr det ja,mahite raag yeto tari tech karte ani Busy astes tar sangat pn ja kuthe ahes ky kartes!!😏</p>
+         <p> Ani Jhevha pn mazi help paheje asel tar vichar mala , mi ahe ithech. 3 years spend kele sobat vichar nko karu 
+          siddharth la bolu ki ny? toh ky vichar karel? , tuze extra thoughts tuzya kadech thev ani msg kar.</p>
+      <p> Chal khup bolo aata bas karto, nytar khup ky bolel mi ,   Tuzi chuki pn kadli asti pn jaude bdy ahe tuza maaf kela🤚</p>
+      <p> Je pn tu vichar kela goals badal te lavkrch achieve hotil asa pray karto.🫂
+        
+      </p>
+      <p>!!!!!!!!! Ani Promise kelas te visaru nko famous zali kiva earn karayla lagli ki mala khayla gheun janar ani firavnr sagli kade !!!!!!!!</p>
+      <p>Love you so much,Enjoy your birthday! and have a great time ahead❤️</p>
+      <p> 23-08-2025 la tu tuzi feelings confess keli hotis mazya sathi, thevha tuzya dolyat pani ala hota ,
+        Ani Aaj letter lihtana mazya pn dolyat pani ala🥹🫂.Ithe astis tar tight Hug kela asta aata.
+      </p>
+      <p> Busy rhanyat mala visaru nko❤️Bolat ja roj sobat🫴. Beg ny karat ahe tuzi iccha</p>
+      <div class="sign"> Yours Sid ✨</div>
+    </div>
+    <div class="special-day">🎂 24th August — your day, always celebrated 🎂</div>
+    <button class="btn" style="margin-top:20px;" onclick="goTo('s9', 100)">Click to Open💗</button>
+    <div class="footer-hint">made with 🎀 just for you</div>
+  </section>
+
+  <!-- Screen 8: birthday calendar -->
+  <section class="screen" id="s8">
+    <div class="eyebrow">Circled In Gold</div>
+    <h1>The big day</h1>
+    <div class="calendar-wrap">
+      <div class="calendar">
+        <div class="calendar-month" id="calendarMonth"></div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+      <div class="calendar-note">and every one of them, I'll be thinking about you.</div>
+    </div>
+    <button class="btn" style="margin-top:20px;" onclick="goTo('s5b', 62)">Continue to your wish 💗</button>
+  </section>
+
+  <!-- Screen 9: final closing with photo background -->
+  <section class="screen" id="s9">
+    <div class="finale-bg" id="finaleBg"></div>
+    <div class="finale-overlay"></div>
+    <div class="finale-content">
+      <div class="finale-heart">💗</div>
+      <h1 class="finale-text">Love you forever,<br>Chindi.</h1>
+    </div>
+
+</div>
+
+<script>
+/* ---------------- Navigation & progress ---------------- */
+const BIRTHDAY_MONTH = 8;
+const BIRTHDAY_DAY = 24;
+const order = ['s1','musicScreen','introTransition','s2','s3','s4','s5','s8','s5b','s6','s7','s9'];
+
+function buildCalendar(){
+  const today = new Date();
+  let year = today.getFullYear();
+  const target = new Date(year, BIRTHDAY_MONTH - 1, BIRTHDAY_DAY);
+  if(target < new Date(today.getFullYear(), today.getMonth(), today.getDate())) year++;
+
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('calendarMonth').textContent = `${monthNames[BIRTHDAY_MONTH - 1]} ${year}`;
+
+  const grid = document.getElementById('calendarGrid');
+  ['S','M','T','W','T','F','S'].forEach(day=>{
+    const weekday = document.createElement('div');
+    weekday.className = 'weekday';
+    weekday.textContent = day;
+    grid.appendChild(weekday);
+  });
+  const firstDay = new Date(year, BIRTHDAY_MONTH - 1, 1).getDay();
+  const daysInMonth = new Date(year, BIRTHDAY_MONTH, 0).getDate();
+  for(let index = 0; index < firstDay; index++){
+    const empty = document.createElement('div');
+    empty.className = 'day empty';
+    grid.appendChild(empty);
+  }
+  for(let day = 1; day <= daysInMonth; day++){
+    const date = document.createElement('div');
+    date.className = 'day' + (day === BIRTHDAY_DAY ? ' birthday' : '');
+    date.textContent = day;
+    grid.appendChild(date);
+  }
+}
+buildCalendar();
+
+function goTo(id, progressPct){
+  if(id !== 'musicScreen') startMusic();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(progressPct !== undefined){
+    document.getElementById('ribbonFill').style.width = progressPct + '%';
+  }
+  if(id === 's2') startLoading();
+}
+
+function showMusicScreen(){
+  goTo('musicScreen', 5);
+}
+
+const backgroundMusic = document.getElementById('backgroundMusic');
+const musicToggle = document.getElementById('musicToggle');
+function startMusic(){
+  backgroundMusic.play().then(()=>{
+    musicToggle.classList.add('visible');
+    musicToggle.textContent = '♫';
+    musicToggle.setAttribute('aria-label', 'Pause music');
+  }).catch(()=>{});
+}
+function startExperience(){
+  startMusic();
+  goTo('introTransition', 8);
+  setTimeout(()=>goTo('s1', 10), 2000);
+}
+musicToggle.addEventListener('click', ()=>{
+  if(backgroundMusic.paused){
+    startMusic();
+  }else{
+    backgroundMusic.pause();
+    musicToggle.textContent = '▶';
+    musicToggle.setAttribute('aria-label', 'Play music');
+  }
+});
+
+function playfulNo(btn){
+  btn.textContent = "Pleaseee? 🥺";
+  btn.classList.remove('ghost');
+  setTimeout(()=>{ btn.textContent = "No"; btn.classList.add('ghost'); }, 900);
+}
+
+/* ---------------- Screen 2: fake loading ---------------- */
+function startLoading(){
+  const fill = document.getElementById('loadFill');
+  const txt = document.getElementById('loadText');
+  const msgs = ['loading your surprise...', 'adding sparkles...', 'wrapping the gift...', 'almost there...'];
+  let p = 0, mi = 0;
+  fill.style.width = '0%';
+  const int = setInterval(()=>{
+    p += 6 + Math.random()*10;
+    if(p >= 100){ p = 100; clearInterval(int); setTimeout(()=>goTo('s3', 25), 400); }
+    fill.style.width = p + '%';
+    if(Math.random() > .6 && mi < msgs.length-1){ mi++; txt.textContent = msgs[mi]; }
+  }, 260);
+}
+
+/* ---------------- Screen 3: lights ---------------- */
+function turnOnLights(){
+  const dark = document.getElementById('s3');
+  dark.classList.add('lit');
+  document.getElementById('lights').classList.add('on');
+  document.getElementById('lightsBtn').textContent = 'So bright! ✨';
+  spawnConfetti(14, ['✨','💫','🌟']);
+  setTimeout(()=>goTo('s4', 40), 1100);
+}
+
+/* ---------------- Screen 4: balloon ---------------- */
+function popBalloon(){
+  const b = document.getElementById('balloon');
+  if(b.classList.contains('popped')) return;
+  b.classList.add('popped');
+  spawnConfetti(22, ['🎉','🎊','💗','⭐']);
+  document.getElementById('balloonBtn').textContent = 'Blow out the candles 🕯️';
+  document.getElementById('balloonBtn').onclick = ()=>goTo('s5', 55);
+}
+document.getElementById('balloonBtn').addEventListener('click', function(e){
+  const b = document.getElementById('balloon');
+  if(!b.classList.contains('popped')){ popBalloon(); }
+});
+
+/* ---------------- Confetti helper ---------------- */
+function spawnConfetti(count, emojis){
+  const stage = document.getElementById('stage');
+  for(let i=0;i<count;i++){
+    const el = document.createElement('div');
+    el.className = 'confetti-piece';
+    el.textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    el.style.left = Math.random()*100 + '%';
+    el.style.fontSize = (14 + Math.random()*14) + 'px';
+    el.style.animationDuration = (2 + Math.random()*2) + 's';
+    el.style.animationDelay = (Math.random()*0.4) + 's';
+    stage.appendChild(el);
+    setTimeout(()=>el.remove(), 4500);
+  }
+}
+
+/* ---------------- Screen 5: candle wish ---------------- */
+let blownCandles = 0;
+document.querySelectorAll('.candle-flame').forEach(flame=>{
+  flame.addEventListener('click', ()=>{
+    if(flame.classList.contains('out')) return;
+    flame.classList.add('out');
+    blownCandles++;
+    if(blownCandles === document.querySelectorAll('.candle-flame').length){
+      document.getElementById('candleInstruction').textContent = 'Wish made ✨';
+      spawnConfetti(18, ['✨','💛','🎉']);
+      setTimeout(()=>goTo('s8', 55), 700);
+    }
+  });
+});
+
+/* ---------------- Screen 6: scratch cards ---------------- */
+const wishData = [
+  {image:'both.jpg', icon:'📸', text:'A photo that I always remember!'
+  ,text:' Ha Ekach apla changla photo aahe vatta🥹 '},
+  {image:'image1.png', icon:'💌', text:'Thank you for being exactly who you are, every single day',text:'Photo madhe Lay Nakhre karu nko🙄😌'},
+  {image:'funny.jpg', icon:'🎈', text:"Here's to more laughs, more adventures, more us.",text:'Khat rah nusta!😂'},
+  {image:'cute.jpg', icon:'🌸', text:'Wishing you a year as wonderful as you are',text:'Chindi'},
+  {image:'closeup.png', icon:'✨', text:'May this year bring you endless happiness and beautiful memories'
+  ,text:'Sadi madhe kashi diste sangu?'},
+  {image:'image2.jpg', icon:'🎁', text:'You deserve all the love, laughter, and good things in the world'
+  ,text:' Mazi diste!😁💞.'}
+];
+
+function buildScratchCards(){
+  const grid = document.getElementById('cardsGrid');
+  grid.innerHTML = '';
+  wishData.forEach((d, i)=>{
+    const card = document.createElement('div');
+    card.className = 'scratch-card';
+    card.innerHTML = `
+      <div class="scratch-card-inner">
+        <div class="scratch-front">
+          <div class="front-icon">${d.icon}</div>
+          <div class="front-label">Click to reveal</div>
+        </div>
+        <div class="scratch-reveal">
+          <img class="reveal-image" src="${d.image}" alt="Birthday memory">
+          <p>${d.text}</p>
+        </div>
+      </div>
+    `;
+    card.addEventListener('click', ()=> revealCard(card));
+    grid.appendChild(card);
+  });
+}
+
+let scratchedCount = 0;
+function revealCard(card){
+  if(card.classList.contains('flipped')) return;
+  card.classList.add('flipped');
+  scratchedCount++;
+  document.getElementById('cardCounter').textContent = scratchedCount + ' / ' + wishData.length + ' revealed';
+  if(scratchedCount === wishData.length){
+    document.getElementById('revealBtn').style.display = 'inline-block';
+    spawnConfetti(18, ['🎁','✨','💗']);
+  }
+}
+
+buildScratchCards();
+</script>
+</body>
+</html>
